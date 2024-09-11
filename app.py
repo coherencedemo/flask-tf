@@ -1,6 +1,7 @@
 import os
 import logging
 from flask import Flask
+from google.cloud import storage
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -10,7 +11,16 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     app.logger.info('Received request for hello world')
-    return 'Hello, World!'
+    bucket_name = os.environ.get('BUCKET_NAME')
+    return f'Hello, World! Your bucket name is: {bucket_name}'
+
+@app.route('/list-files')
+def list_files():
+    bucket_name = os.environ.get('BUCKET_NAME')
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    files = bucket.list_blobs()
+    return ', '.join(f.name for f in files)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
