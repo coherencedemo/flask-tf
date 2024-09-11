@@ -12,6 +12,8 @@ app = Flask(__name__)
 def hello_world():
     app.logger.info('Received request for hello world')
     bucket_name = os.environ.get('BUCKET_NAME')
+    app.logger.info(f'BUCKET_NAME environment variable: {bucket_name}')
+    app.logger.info(f'All environment variables: {dict(os.environ)}')
     return f'Hello, World! Your bucket name is: {bucket_name}'
 
 @app.route('/list-files')
