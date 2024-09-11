@@ -1,0 +1,32 @@
+{% extends "base.tf.j2" %}
+
+{% block additional_resources %}
+{{ super() }}
+
+resource "google_storage_bucket" "example_bucket" {
+  name     = "my-example-bucket-${env_collection.cloud_resource_namespace}"
+  location = "{{ env_collection.region }}"
+  force_destroy = true
+
+  uniform_bucket_level_access = true
+
+  lifecycle_rule {
+    condition {
+      age = 3
+    }
+    action {
+      type = "Delete"
+    }
+  }
+
+  labels = {
+    environment = "{{ environment.name }}"
+    managed_by  = "terraform"
+  }
+}
+
+output "bucket_name" {
+  value = google_storage_bucket.example_bucket.name
+  description = "The name of the created GCS bucket"
+}
+{% endblock %}

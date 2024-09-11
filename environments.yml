@@ -1,0 +1,18 @@
+name: flask-tf
+provider: gcp
+flavor: run-lite
+version: 1
+
+template_config:
+  template_directory: custom
+
+collections:
+- name: development
+  region: us-east4
+  base_domain: cb113e3b3f7c.ritzabv.cncsites.com
+  account_id: "coherence-demo-james"
+  environments:
+  - name: staging
+    environment_variables:
+    - name: BUCKET_NAME
+      value: ${terraform.bucket_name}
