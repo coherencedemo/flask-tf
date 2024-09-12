@@ -1,57 +1,51 @@
-import os
-import logging
-from flask import Flask
+from flask import Flask, request, jsonify, render_template_string
 from google.cloud import storage
-
-# Set up logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import os
 
 app = Flask(__name__)
 
+# Get the bucket name from environment variable
+BUCKET_NAME = os.environ.get('CUSTOM_BUCKET_NAME')
+
+# Initialize GCS client
+storage_client = storage.Client()
+bucket = storage_client.bucket(BUCKET_NAME)
+
 @app.route('/')
-def hello_world():
-    logger.info('Received request for hello world')
-    bucket_name = os.environ.get('BUCKET_NAME')
-    logger.info(f'BUCKET_NAME environment variable: {bucket_name}')
-    
-    # Log all environment variables
-    logger.info('All environment variables:')
-    for key, value in os.environ.items():
-        logger.info(f'{key}: {value}')
-    
-    return f'Hello, World! Your bucket name is: {bucket_name}'
+def index():
+    files = list_files()
+    return render_template_string('''
+        <h1>File Upload and List</h1>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <input type="submit" value="Upload">
+        </form>
+        <h2>Files in bucket:</h2>
+        <ul>
+            {% for file in files %}
+                <li>{{ file }}</li>
+            {% endfor %}
+        </ul>
+    ''', files=files)
 
-@app.route('/list-files')
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    if file:
+        blob = bucket.blob(file.filename)
+        blob.upload_from_string(
+            file.read(),
+            content_type=file.content_type
+        )
+        return jsonify({"message": f"File {file.filename} uploaded successfully"}), 200
+
 def list_files():
-    logger.info('Received request to list files')
-    bucket_name = os.environ.get('BUCKET_NAME')
-    logger.info(f'Attempting to list files in bucket: {bucket_name}')
-    
-    if not bucket_name:
-        logger.error('BUCKET_NAME environment variable is not set')
-        return 'Error: BUCKET_NAME is not set', 500
-
-    try:
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(bucket_name)
-        files = bucket.list_blobs()
-        file_list = ', '.join(f.name for f in files)
-        logger.info(f'Successfully listed files: {file_list}')
-        return file_list
-    except Exception as e:
-        logger.error(f'Error listing files: {str(e)}')
-        return f'Error listing files: {str(e)}', 500
-
-@app.route('/health')
-def health_check():
-    logger.info('Received health check request')
-    return 'OK', 200
+    blobs = bucket.list_blobs()
+    return [blob.name for blob in blobs]
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    logger.info(f'Starting app on port {port}')
-    logger.info('Initial environment variables:')
-    for key, value in os.environ.items():
-        logger.info(f'{key}: {value}')
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
