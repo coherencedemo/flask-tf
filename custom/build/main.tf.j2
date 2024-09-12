@@ -3,43 +3,19 @@
 {% block environment_resources %}
 {{ super() }}
 
-locals {
-  region = "{{ env_collection.region }}"
+resource "google_storage_bucket" "custom_bucket" {
+  name     = "custom-bucket-{{ environment.name }}-{{ env_collection.account_id }}"
+  location = "{{ env_collection.region }}"
+  force_destroy = true
 }
 
-# Custom Cloud Run service
-resource "google_cloud_run_service" "custom_service" {
-  name     = "custom-service-{{ environment.name }}"
-  location = local.region
-
-  template {
-    spec {
-      containers {
-        image = "gcr.io/cloudrun/hello"
-        env {
-          name  = "MY_CUSTOM_VAR"
-          value = "{{ config_renderer.environment_items.MY_CUSTOM_VAR }}"
-        }
-      }
-    }
-  }
-
-  traffic {
-    percent         = 100
-    latest_revision = true
-  }
+resource "google_storage_bucket_iam_member" "member" {
+  bucket = google_storage_bucket.custom_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
 
-# IAM binding for the custom service
-resource "google_cloud_run_service_iam_member" "custom_service_invoker" {
-  service  = google_cloud_run_service.custom_service.name
-  location = google_cloud_run_service.custom_service.location
-  role     = "roles/run.invoker"
-  member   = "allUsers"
-}
-
-# Output the custom service URL
-output "custom_service_url" {
-  value = google_cloud_run_service.custom_service.status[0].url
+output "custom_bucket_name" {
+  value = google_storage_bucket.custom_bucket.name
 }
 {% endblock %}
