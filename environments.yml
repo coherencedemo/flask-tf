@@ -9,10 +9,9 @@ template_config:
 collections:
 - name: development
   region: us-east4
-  base_domain: c834ce8d7880.ritzabv.cncsites.com
   account_id: "coherence-demo-james"
   environments:
   - name: staging
     environment_variables:
-    - name: BUCKET_NAME
-      value: ${terraform.bucket_name}
+    - name: MY_CUSTOM_VAR
+      value: "custom-value"
