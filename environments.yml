@@ -1,6 +1,6 @@
 name: flask-tf
 provider: gcp
-flavor: run-lite
+flavor: run
 version: 1
 
 template_config:
