@@ -6,7 +6,7 @@ import sys
 app = Flask(__name__)
 
 # Get the bucket name from environment variable
-BUCKET_NAME = os.environ.get('CUSTOM_BUCKET_NAME')
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
 print(f"BUCKET_NAME: {BUCKET_NAME}", file=sys.stderr)
 
 @app.route('/')
