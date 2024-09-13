@@ -4,11 +4,14 @@ import os
 
 app = Flask(__name__)
 
-# Use the CNC_INSTANCE_NAME to derive the bucket name
-BUCKET_NAME = f"bucket-{os.environ['CNC_INSTANCE_NAME']}"
+# Use the environment variable set by Coherence based on Terraform output
+BUCKET_NAME = os.environ.get('EXAMPLE_BUCKET_NAME')
 
 @app.route('/')
 def index():
+    if not BUCKET_NAME:
+        return "Bucket name not set. Please check your environment variables.", 500
+
     storage_client = storage.Client()
     bucket = storage_client.bucket(BUCKET_NAME)
     blobs = bucket.list_blobs()
@@ -30,6 +33,8 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    if not BUCKET_NAME:
+        return jsonify({"error": "Bucket name not set"}), 500
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
     file = request.files['file']
