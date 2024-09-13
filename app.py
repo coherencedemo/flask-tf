@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # Use the environment variable set by Coherence based on Terraform output
-BUCKET_NAME = os.environ.get('EXAMPLE_BUCKET_NAME')
+BUCKET_NAME = os.environ.get('BUCKET_NAME')
 
 @app.route('/')
 def index():
