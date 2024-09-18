@@ -1,0 +1,14 @@
+name: terraform-troubleshoot
+provider: gcp
+flavor: run
+version: 1
+
+template_config:
+  template_directory: custom
+
+collections:
+- name: development
+  region: us-east4
+  account_id: "coherence-arm-demo"
+  environments:
+  - name: staging

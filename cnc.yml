@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: ''
+      dockerfile: Dockerfile
+    x-cnc:
+      type: backend
+      system:
+        health_check: ''
+      url_path: ''
+    deploy:
+      resources:
+        limits:
+          cpus: 1
+          memory: 2G
+    command: ''
+    x-coherence:
+      repo_id: 490
+      framework_preset:
+        icon: flask
+        name: Flask
+      track_branch_name: ''
