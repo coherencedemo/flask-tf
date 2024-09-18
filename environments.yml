@@ -7,7 +7,7 @@ template_config:
   template_directory: custom
 
 collections:
-- name: template
+- name: development
   region: us-east4
   account_id: "coherence-arm-demo"
   environments:
