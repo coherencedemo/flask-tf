@@ -4,7 +4,7 @@
 {{ super() }}
 
 resource "google_storage_bucket" "custom_bucket" {
-  name     = "bucket-{{ environment.name }}-{{ environment.instance_name }}-{{ env_collection.account_id }}"
+  name     = "{{ environment.instance_name }}"
   location = "{{ env_collection.region }}"
   force_destroy = true
 
