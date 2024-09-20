@@ -3,18 +3,35 @@
 {% block environment_resources scoped %}
 {{ super() }}
 
-resource "google_storage_bucket" "custom_bucket" {
-  name     = "{{ environment.instance_name }}-bucket"
-  location = "{{ env_collection.region }}"
-  force_destroy = true
-
-  uniform_bucket_level_access = true
-  public_access_prevention = "inherited"
+variable "environment_name" {
+  description = "Name of the environment"
+  type        = string
 }
 
-resource "google_storage_bucket_iam_member" "public_read" {
-  bucket = google_storage_bucket.custom_bucket.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
+resource "aws_s3_bucket" "custom_bucket" {
+  bucket = "${var.environment_name}-bucket"
+  force_destroy = true
+
+  tags = {
+    Name        = "${var.environment_name}-bucket"
+    Environment = var.environment_name
+  }
+}
+
+resource "aws_s3_bucket_versioning" "versioning_example" {
+  bucket = aws_s3_bucket.custom_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
+  bucket = aws_s3_bucket.custom_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 {% endblock %}

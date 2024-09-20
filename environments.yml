@@ -1,6 +1,6 @@
-name: terraform-troubleshoot
-provider: gcp
-flavor: run
+name: terraform-aws
+provider: aws
+flavor: ecs
 version: 1
 
 template_config:
@@ -8,7 +8,7 @@ template_config:
 
 collections:
 - name: development
-  region: us-east4
-  account_id: "coherence-arm-demo"
+  region: us-east-1
+  account_id: "851725380539"
   environments:
   - name: staging
