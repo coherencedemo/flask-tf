@@ -4,7 +4,7 @@
 {{ super() }}
 
 resource "google_storage_bucket" "{{ environment.instance_name }}" {
-  name     = "{{ environment.instance_name }}-bucket"
+  name     = "{{ environment.instance_name }}"
   location = "{{ env_collection.region }}"
   force_destroy = true
 
@@ -12,9 +12,4 @@ resource "google_storage_bucket" "{{ environment.instance_name }}" {
   public_access_prevention = "inherited"
 }
 
-resource "google_storage_bucket_iam_member" "public_read" {
-  bucket = google_storage_bucket.custom_bucket.name
-  role   = "roles/storage.objectViewer"
-  member = "allUsers"
-}
 {% endblock %}
