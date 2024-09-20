@@ -3,7 +3,7 @@
 {% block environment_resources scoped %}
 {{ super() }}
 
-resource "google_storage_bucket" "custom_bucket" {
+resource "google_storage_bucket" "{{ environment.instance_name }}" {
   name     = "{{ environment.instance_name }}-bucket"
   location = "{{ env_collection.region }}"
   force_destroy = true
