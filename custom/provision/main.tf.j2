@@ -1,10 +1,10 @@
 {% extends "base.tf.j2" %}
 
-{% block environment_resources %}
+{% block environment_resources scoped %}
 {{ super() }}
 
 resource "google_storage_bucket" "custom_bucket" {
-  name     = "bucket-{{ environment.name }}-{{ env_collection.account_id }}"
+  name     = "bucket-{{ environment.name }}-{{ environment.instance_name }}-{{ env_collection.account_id }}"
   location = "{{ env_collection.region }}"
   force_destroy = true
 
